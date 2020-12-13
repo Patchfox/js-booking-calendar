@@ -1,5 +1,5 @@
 import date_utils from './date_utils';
-import { $, createSVG, animateSVG } from './svg_utils';
+import {$, createSVG, animateSVG} from './svg_utils';
 
 export default class Bar {
     constructor(gantt, task) {
@@ -45,19 +45,19 @@ export default class Bar {
     }
 
     prepare_helpers() {
-        SVGElement.prototype.getX = function() {
+        SVGElement.prototype.getX = function () {
             return +this.getAttribute('x');
         };
-        SVGElement.prototype.getY = function() {
+        SVGElement.prototype.getY = function () {
             return +this.getAttribute('y');
         };
-        SVGElement.prototype.getWidth = function() {
+        SVGElement.prototype.getWidth = function () {
             return +this.getAttribute('width');
         };
-        SVGElement.prototype.getHeight = function() {
+        SVGElement.prototype.getHeight = function () {
             return +this.getAttribute('height');
         };
-        SVGElement.prototype.getEndX = function() {
+        SVGElement.prototype.getEndX = function () {
             return this.getX() + this.getWidth();
         };
     }
@@ -77,7 +77,8 @@ export default class Bar {
             rx: this.corner_radius,
             ry: this.corner_radius,
             class: 'bar',
-            append_to: this.bar_group
+            append_to: this.bar_group,
+            fill: this.stringToHslColor(this.task.group_name, 30, 80)
         });
 
         animateSVG(this.$bar, 'width', 0, this.width);
@@ -181,7 +182,7 @@ export default class Bar {
         });
     }
 
-    update_bar_position({ x = null, width = null }) {
+    update_bar_position({x = null, width = null}) {
         const bar = this.$bar;
         if (x) {
             // get all x values of parent task
@@ -208,7 +209,7 @@ export default class Bar {
 
     date_changed() {
         let changed = false;
-        const { new_start_date, new_end_date } = this.compute_start_end_date();
+        const {new_start_date, new_end_date} = this.compute_start_end_date();
 
         if (Number(this.task._start) !== Number(new_start_date)) {
             changed = true;
@@ -249,12 +250,12 @@ export default class Bar {
             'hour'
         );
 
-        return { new_start_date, new_end_date };
+        return {new_start_date, new_end_date};
     }
 
 
     compute_x() {
-        const { step, column_width } = this.gantt.options;
+        const {step, column_width} = this.gantt.options;
         const task_start = this.task._start;
         const gantt_start = this.gantt.gantt_start;
 
@@ -346,6 +347,16 @@ export default class Bar {
         for (let arrow of this.arrows) {
             arrow.update();
         }
+    }
+
+    stringToHslColor(str, s, l) {
+        var hash = 0;
+        for (var i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+
+        var h = hash % 360;
+        return 'hsl(' + h + ', ' + s + '%, ' + l + '%)';
     }
 }
 

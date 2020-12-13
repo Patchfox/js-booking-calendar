@@ -505,19 +505,19 @@ class Bar {
     }
 
     prepare_helpers() {
-        SVGElement.prototype.getX = function() {
+        SVGElement.prototype.getX = function () {
             return +this.getAttribute('x');
         };
-        SVGElement.prototype.getY = function() {
+        SVGElement.prototype.getY = function () {
             return +this.getAttribute('y');
         };
-        SVGElement.prototype.getWidth = function() {
+        SVGElement.prototype.getWidth = function () {
             return +this.getAttribute('width');
         };
-        SVGElement.prototype.getHeight = function() {
+        SVGElement.prototype.getHeight = function () {
             return +this.getAttribute('height');
         };
-        SVGElement.prototype.getEndX = function() {
+        SVGElement.prototype.getEndX = function () {
             return this.getX() + this.getWidth();
         };
     }
@@ -537,7 +537,8 @@ class Bar {
             rx: this.corner_radius,
             ry: this.corner_radius,
             class: 'bar',
-            append_to: this.bar_group
+            append_to: this.bar_group,
+            fill: this.stringToHslColor(this.task.group_name, 30, 80)
         });
 
         animateSVG(this.$bar, 'width', 0, this.width);
@@ -641,7 +642,7 @@ class Bar {
         });
     }
 
-    update_bar_position({ x = null, width = null }) {
+    update_bar_position({x = null, width = null}) {
         const bar = this.$bar;
         if (x) {
             // get all x values of parent task
@@ -668,7 +669,7 @@ class Bar {
 
     date_changed() {
         let changed = false;
-        const { new_start_date, new_end_date } = this.compute_start_end_date();
+        const {new_start_date, new_end_date} = this.compute_start_end_date();
 
         if (Number(this.task._start) !== Number(new_start_date)) {
             changed = true;
@@ -709,12 +710,12 @@ class Bar {
             'hour'
         );
 
-        return { new_start_date, new_end_date };
+        return {new_start_date, new_end_date};
     }
 
 
     compute_x() {
-        const { step, column_width } = this.gantt.options;
+        const {step, column_width} = this.gantt.options;
         const task_start = this.task._start;
         const gantt_start = this.gantt.gantt_start;
 
@@ -806,6 +807,16 @@ class Bar {
         for (let arrow of this.arrows) {
             arrow.update();
         }
+    }
+
+    stringToHslColor(str, s, l) {
+        var hash = 0;
+        for (var i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+
+        var h = hash % 360;
+        return 'hsl(' + h + ', ' + s + '%, ' + l + '%)';
     }
 }
 
@@ -1055,14 +1066,16 @@ class Gantt {
             custom_popup_html: null,
             language: 'en',
             start_date: null,
-            end_date: null
+            end_date: null,
+            actions_width: 200
         };
         this.options = Object.assign({}, default_options, options);
     }
 
     setup_properties(properties) {
         let tasks = [];
-        this.properties = properties.map((property, propertyIndex) => {
+        this.properties = properties;
+        properties.map((property, propertyIndex) => {
             tasks.push(
                 ...this.setup_tasks(property['bookings'], propertyIndex)
             );
@@ -1086,6 +1099,7 @@ class Gantt {
 
             // cache index
             task._index = propertyIndex;
+            task.group_name = this.properties[propertyIndex]['name'];
 
             // invalid dates
             if (!task.start && !task.end) {
@@ -1194,17 +1208,8 @@ class Gantt {
             this.options.start_date !== null &&
             this.options.end_date !== null
         ) {
-            this.gantt_start = date_utils.add(
-                date_utils.parse(this.options.start_date),
-                -1,
-                'day'
-            );
-
-            this.gantt_end = date_utils.add(
-                date_utils.parse(this.options.end_date),
-                1,
-                'day'
-            );
+            this.gantt_start = date_utils.parse(this.options.start_date);
+            this.gantt_end = date_utils.parse(this.options.end_date);
             return;
         }
 
@@ -1310,7 +1315,7 @@ class Gantt {
         // make group layers
         for (let layer of layers) {
             this.layers[layer] = createSVG('svg', {
-                x: 200,
+                x: this.options.actions_width,
                 class: layer,
                 append_to: this.topLayers.content
             });
@@ -1318,18 +1323,43 @@ class Gantt {
     }
 
     make_actions() {
-        const startingPoint = this.options.header_height;
+
+        const rows_layer = createSVG('g', {append_to: this.topLayers.actions});
+        const lines_layer = createSVG('g', {append_to: this.topLayers.actions});
+
+        const row_width = this.dates.length * this.options.column_width;
+        const row_height = this.options.bar_height + this.options.padding;
+
+        let row_y = this.options.header_height + this.options.padding / 2;
+
         this.properties.forEach((property, idx) => {
             createSVG('rect', {
                 x: 0,
-                y:
-                    startingPoint +
-                    idx * (this.options.bar_height + this.options.padding),
-                width: 200,
-                height: this.options.bar_height + this.options.padding,
-                class: 'actions',
-                append_to: this.topLayers.actions
+                y: row_y,
+                width: row_width,
+                height: row_height,
+                class: 'grid-row',
+                append_to: rows_layer
             });
+
+            createSVG('line', {
+                x1: 0,
+                y1: row_y + row_height,
+                x2: row_width,
+                y2: row_y + row_height,
+                class: 'row-line',
+                append_to: lines_layer
+            });
+
+            createSVG('text', {
+                x: this.options.actions_width / 2,
+                y: row_y + row_height / 2,
+                innerHTML: property.name.replace(/(.{25})..+/, '$1…'),
+                class: 'actions-label',
+                append_to: lines_layer
+            });
+
+            row_y += this.options.bar_height + this.options.padding;
         });
 
     }
@@ -1348,7 +1378,7 @@ class Gantt {
             this.options.header_height +
             this.options.padding +
             (this.options.bar_height + this.options.padding) *
-                this.tasks.length;
+            this.properties.length;
 
         createSVG('rect', {
             x: 0,
@@ -1369,12 +1399,12 @@ class Gantt {
         const rows_layer = createSVG('g', {append_to: this.layers.grid});
         const lines_layer = createSVG('g', {append_to: this.layers.grid});
 
-        const row_width = this.dates.length * this.options.column_width;
+        const row_width = this.dates.length * this.options.column_width + 200;
         const row_height = this.options.bar_height + this.options.padding;
 
         let row_y = this.options.header_height + this.options.padding / 2;
 
-        for (let task of this.tasks) {
+        this.properties.forEach((property) => {
             createSVG('rect', {
                 x: 0,
                 y: row_y,
@@ -1394,7 +1424,7 @@ class Gantt {
             });
 
             row_y += this.options.bar_height + this.options.padding;
-        }
+        });
     }
 
     make_grid_header() {
@@ -1415,7 +1445,7 @@ class Gantt {
         let tick_y = this.options.header_height + this.options.padding / 2;
         let tick_height =
             (this.options.bar_height + this.options.padding) *
-            this.tasks.length;
+            this.properties.length;
 
         for (let date of this.dates) {
             let tick_class = 'tick';
@@ -1468,7 +1498,7 @@ class Gantt {
             const width = this.options.column_width;
             const height =
                 (this.options.bar_height + this.options.padding) *
-                this.tasks.length +
+                this.properties.length +
                 this.options.header_height +
                 this.options.padding / 2;
 

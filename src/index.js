@@ -88,14 +88,16 @@ export default class Gantt {
             custom_popup_html: null,
             language: 'en',
             start_date: null,
-            end_date: null
+            end_date: null,
+            actions_width: 200
         };
         this.options = Object.assign({}, default_options, options);
     }
 
     setup_properties(properties) {
         let tasks = [];
-        this.properties = properties.map((property, propertyIndex) => {
+        this.properties = properties;
+        properties.map((property, propertyIndex) => {
             tasks.push(
                 ...this.setup_tasks(property['bookings'], propertyIndex)
             );
@@ -119,6 +121,7 @@ export default class Gantt {
 
             // cache index
             task._index = propertyIndex;
+            task.group_name = this.properties[propertyIndex]['name'];
 
             // invalid dates
             if (!task.start && !task.end) {
@@ -227,17 +230,8 @@ export default class Gantt {
             this.options.start_date !== null &&
             this.options.end_date !== null
         ) {
-            this.gantt_start = date_utils.add(
-                date_utils.parse(this.options.start_date),
-                -1,
-                'day'
-            );
-
-            this.gantt_end = date_utils.add(
-                date_utils.parse(this.options.end_date),
-                1,
-                'day'
-            );
+            this.gantt_start = date_utils.parse(this.options.start_date);
+            this.gantt_end = date_utils.parse(this.options.end_date);
             return;
         }
 
@@ -343,7 +337,7 @@ export default class Gantt {
         // make group layers
         for (let layer of layers) {
             this.layers[layer] = createSVG('svg', {
-                x: 200,
+                x: this.options.actions_width,
                 class: layer,
                 append_to: this.topLayers.content
             });
@@ -351,18 +345,43 @@ export default class Gantt {
     }
 
     make_actions() {
-        const startingPoint = this.options.header_height;
+
+        const rows_layer = createSVG('g', {append_to: this.topLayers.actions});
+        const lines_layer = createSVG('g', {append_to: this.topLayers.actions});
+
+        const row_width = this.dates.length * this.options.column_width;
+        const row_height = this.options.bar_height + this.options.padding;
+
+        let row_y = this.options.header_height + this.options.padding / 2;
+
         this.properties.forEach((property, idx) => {
             createSVG('rect', {
                 x: 0,
-                y:
-                    startingPoint +
-                    idx * (this.options.bar_height + this.options.padding),
-                width: 200,
-                height: this.options.bar_height + this.options.padding,
-                class: 'actions',
-                append_to: this.topLayers.actions
+                y: row_y,
+                width: row_width,
+                height: row_height,
+                class: 'grid-row',
+                append_to: rows_layer
             });
+
+            createSVG('line', {
+                x1: 0,
+                y1: row_y + row_height,
+                x2: row_width,
+                y2: row_y + row_height,
+                class: 'row-line',
+                append_to: lines_layer
+            });
+
+            createSVG('text', {
+                x: this.options.actions_width / 2,
+                y: row_y + row_height / 2,
+                innerHTML: property.name.replace(/(.{25})..+/, '$1…'),
+                class: 'actions-label',
+                append_to: lines_layer
+            });
+
+            row_y += this.options.bar_height + this.options.padding;
         });
 
     }
@@ -381,7 +400,7 @@ export default class Gantt {
             this.options.header_height +
             this.options.padding +
             (this.options.bar_height + this.options.padding) *
-                this.tasks.length;
+            this.properties.length;
 
         createSVG('rect', {
             x: 0,
@@ -402,12 +421,12 @@ export default class Gantt {
         const rows_layer = createSVG('g', {append_to: this.layers.grid});
         const lines_layer = createSVG('g', {append_to: this.layers.grid});
 
-        const row_width = this.dates.length * this.options.column_width;
+        const row_width = this.dates.length * this.options.column_width + 200;
         const row_height = this.options.bar_height + this.options.padding;
 
         let row_y = this.options.header_height + this.options.padding / 2;
 
-        for (let task of this.tasks) {
+        this.properties.forEach((property) => {
             createSVG('rect', {
                 x: 0,
                 y: row_y,
@@ -427,7 +446,7 @@ export default class Gantt {
             });
 
             row_y += this.options.bar_height + this.options.padding;
-        }
+        });
     }
 
     make_grid_header() {
@@ -448,7 +467,7 @@ export default class Gantt {
         let tick_y = this.options.header_height + this.options.padding / 2;
         let tick_height =
             (this.options.bar_height + this.options.padding) *
-            this.tasks.length;
+            this.properties.length;
 
         for (let date of this.dates) {
             let tick_class = 'tick';
@@ -501,7 +520,7 @@ export default class Gantt {
             const width = this.options.column_width;
             const height =
                 (this.options.bar_height + this.options.padding) *
-                this.tasks.length +
+                this.properties.length +
                 this.options.header_height +
                 this.options.padding / 2;
 
