@@ -30,10 +30,6 @@ export default class Bar {
             date_utils.diff(this.task._end, this.task._start, 'hour') /
             this.gantt.options.step;
         this.width = this.gantt.options.column_width * this.duration;
-        this.progress_width =
-            this.gantt.options.column_width *
-                this.duration *
-                (this.task.progress / 100) || 0;
         this.group = createSVG('g', {
             class: 'bar-wrapper ' + (this.task.custom_class || ''),
             'data-id': this.task.id
@@ -68,7 +64,6 @@ export default class Bar {
 
     draw() {
         this.draw_bar();
-        this.draw_progress_bar();
         this.draw_label();
         this.draw_resize_handles();
     }
@@ -92,21 +87,6 @@ export default class Bar {
         }
     }
 
-    draw_progress_bar() {
-        if (this.invalid) return;
-        this.$bar_progress = createSVG('rect', {
-            x: this.x,
-            y: this.y,
-            width: this.progress_width,
-            height: this.height,
-            rx: this.corner_radius,
-            ry: this.corner_radius,
-            class: 'bar-progress',
-            append_to: this.bar_group
-        });
-
-        animateSVG(this.$bar_progress, 'width', 0, this.progress_width);
-    }
 
     draw_label() {
         createSVG('text', {
@@ -148,25 +128,7 @@ export default class Bar {
             append_to: this.handle_group
         });
 
-        if (this.task.progress && this.task.progress < 100) {
-            this.$handle_progress = createSVG('polygon', {
-                points: this.get_progress_polygon_points().join(','),
-                class: 'handle progress',
-                append_to: this.handle_group
-            });
-        }
-    }
 
-    get_progress_polygon_points() {
-        const bar_progress = this.$bar_progress;
-        return [
-            bar_progress.getEndX() - 5,
-            bar_progress.getY() + bar_progress.getHeight(),
-            bar_progress.getEndX() + 5,
-            bar_progress.getY() + bar_progress.getHeight(),
-            bar_progress.getEndX(),
-            bar_progress.getY() + bar_progress.getHeight() - 8.66
-        ];
     }
 
     bind() {
@@ -199,7 +161,11 @@ export default class Bar {
     show_popup() {
         if (this.gantt.bar_being_dragged) return;
 
-        const start_date = date_utils.format(this.task._start, 'MMM D', this.gantt.options.language);
+        const start_date = date_utils.format(
+            this.task._start,
+            'MMM D',
+            this.gantt.options.language
+        );
         const end_date = date_utils.format(
             date_utils.add(this.task._end, -1, 'second'),
             'MMM D',
@@ -211,7 +177,7 @@ export default class Bar {
             target_element: this.$bar,
             title: this.task.name,
             subtitle: subtitle,
-            task: this.task,
+            task: this.task
         });
     }
 
@@ -237,7 +203,6 @@ export default class Bar {
         }
         this.update_label_position();
         this.update_handle_position();
-        this.update_progressbar_position();
         this.update_arrow_position();
     }
 
@@ -264,12 +229,6 @@ export default class Bar {
         ]);
     }
 
-    progress_changed() {
-        const new_progress = this.compute_progress();
-        this.task.progress = new_progress;
-        this.gantt.trigger_event('progress_change', [this.task, new_progress]);
-    }
-
     set_action_completed() {
         this.action_completed = true;
         setTimeout(() => (this.action_completed = false), 1000);
@@ -293,11 +252,6 @@ export default class Bar {
         return { new_start_date, new_end_date };
     }
 
-    compute_progress() {
-        const progress =
-            this.$bar_progress.getWidth() / this.$bar.getWidth() * 100;
-        return parseInt(progress, 10);
-    }
 
     compute_x() {
         const { step, column_width } = this.gantt.options;
@@ -363,14 +317,6 @@ export default class Bar {
         return element;
     }
 
-    update_progressbar_position() {
-        this.$bar_progress.setAttribute('x', this.$bar.getX());
-        this.$bar_progress.setAttribute(
-            'width',
-            this.$bar.getWidth() * (this.task.progress / 100)
-        );
-    }
-
     update_label_position() {
         const bar = this.$bar,
             label = this.group.querySelector('.bar-label');
@@ -392,9 +338,7 @@ export default class Bar {
         this.handle_group
             .querySelector('.handle.right')
             .setAttribute('x', bar.getEndX() - 9);
-        const handle = this.group.querySelector('.handle.progress');
-        handle &&
-            handle.setAttribute('points', this.get_progress_polygon_points());
+
     }
 
     update_arrow_position() {

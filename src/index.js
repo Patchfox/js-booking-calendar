@@ -1,5 +1,5 @@
 import date_utils from './date_utils';
-import { $, createSVG } from './svg_utils';
+import {$, createSVG} from './svg_utils';
 import Bar from './bar';
 import Arrow from './arrow';
 import Popup from './popup';
@@ -19,7 +19,7 @@ export default class Gantt {
     constructor(wrapper, tasks, options) {
         this.setup_wrapper(wrapper);
         this.setup_options(options);
-        this.setup_tasks(tasks);
+        this.setup_properties(tasks);
         // initialize with default view mode
         this.change_view_mode();
         this.bind_events();
@@ -42,7 +42,7 @@ export default class Gantt {
         } else {
             throw new TypeError(
                 'Frappé Gantt only supports usage of a string CSS selector,' +
-                    " HTML DOM element or SVG DOM element for the 'element' parameter"
+                " HTML DOM element or SVG DOM element for the 'element' parameter"
             );
         }
 
@@ -78,7 +78,7 @@ export default class Gantt {
             column_width: 30,
             step: 24,
             view_modes: [...Object.values(VIEW_MODE)],
-            bar_height: 20,
+            bar_height: 40,
             bar_corner_radius: 3,
             arrow_curve: 5,
             padding: 18,
@@ -86,14 +86,28 @@ export default class Gantt {
             date_format: 'YYYY-MM-DD',
             popup_trigger: 'click',
             custom_popup_html: null,
-            language: 'en'
+            language: 'en',
+            start_date: null,
+            end_date: null
         };
         this.options = Object.assign({}, default_options, options);
     }
 
-    setup_tasks(tasks) {
+    setup_properties(properties) {
+        let tasks = [];
+        this.properties = properties.map((property, propertyIndex) => {
+            tasks.push(
+                ...this.setup_tasks(property['bookings'], propertyIndex)
+            );
+        });
+        this.tasks = tasks;
+
+        this.setup_dependencies();
+    }
+
+    setup_tasks(tasks, propertyIndex) {
         // prepare tasks
-        this.tasks = tasks.map((task, i) => {
+        return tasks.map((task, i) => {
             // convert to Date objects
             task._start = date_utils.parse(task.start);
             task._end = date_utils.parse(task.end);
@@ -104,7 +118,7 @@ export default class Gantt {
             }
 
             // cache index
-            task._index = i;
+            task._index = propertyIndex;
 
             // invalid dates
             if (!task.start && !task.end) {
@@ -152,8 +166,6 @@ export default class Gantt {
 
             return task;
         });
-
-        this.setup_dependencies();
     }
 
     setup_dependencies() {
@@ -166,8 +178,8 @@ export default class Gantt {
         }
     }
 
-    refresh(tasks) {
-        this.setup_tasks(tasks);
+    refresh(properties) {
+        this.setup_properties(properties);
         this.change_view_mode();
     }
 
@@ -211,6 +223,24 @@ export default class Gantt {
     setup_gantt_dates() {
         this.gantt_start = this.gantt_end = null;
 
+        if (
+            this.options.start_date !== null &&
+            this.options.end_date !== null
+        ) {
+            this.gantt_start = date_utils.add(
+                date_utils.parse(this.options.start_date),
+                -1,
+                'day'
+            );
+
+            this.gantt_end = date_utils.add(
+                date_utils.parse(this.options.end_date),
+                1,
+                'day'
+            );
+            return;
+        }
+
         for (let task of this.tasks) {
             // set global start and end date
             if (!this.gantt_start || task._start < this.gantt_start) {
@@ -235,8 +265,8 @@ export default class Gantt {
             this.gantt_start = date_utils.add(this.gantt_start, -2, 'year');
             this.gantt_end = date_utils.add(this.gantt_end, 2, 'year');
         } else {
-            this.gantt_start = date_utils.add(this.gantt_start, -1, 'month');
-            this.gantt_end = date_utils.add(this.gantt_end, 1, 'month');
+            this.gantt_start = date_utils.add(this.gantt_start, -7, 'month');
+            this.gantt_end = date_utils.add(this.gantt_end, 7, 'month');
         }
     }
 
@@ -277,20 +307,64 @@ export default class Gantt {
         this.make_bars();
         this.make_arrows();
         this.map_arrows_on_bars();
+        this.make_actions();
         this.set_width();
         this.set_scroll_position();
     }
 
     setup_layers() {
-        this.layers = {};
-        const layers = ['grid', 'date', 'arrow', 'progress', 'bar', 'details'];
+        this.topLayers = {};
+        const topLayers = [
+            'actions',
+            'content'
+        ];
         // make group layers
-        for (let layer of layers) {
-            this.layers[layer] = createSVG('g', {
+        for (let layer of topLayers) {
+            this.topLayers[layer] = createSVG('svg', {
                 class: layer,
                 append_to: this.$svg
             });
         }
+
+        createSVG('g', {
+            class: 'content',
+            append_to: this.$svg
+        });
+
+        this.layers = {};
+        const layers = [
+            'grid',
+            'date',
+            'arrow',
+            'progress',
+            'bar',
+            'details'
+        ];
+        // make group layers
+        for (let layer of layers) {
+            this.layers[layer] = createSVG('svg', {
+                x: 200,
+                class: layer,
+                append_to: this.topLayers.content
+            });
+        }
+    }
+
+    make_actions() {
+        const startingPoint = this.options.header_height;
+        this.properties.forEach((property, idx) => {
+            createSVG('rect', {
+                x: 0,
+                y:
+                    startingPoint +
+                    idx * (this.options.bar_height + this.options.padding),
+                width: 200,
+                height: this.options.bar_height + this.options.padding,
+                class: 'actions',
+                append_to: this.topLayers.actions
+            });
+        });
+
     }
 
     make_grid() {
@@ -325,8 +399,8 @@ export default class Gantt {
     }
 
     make_grid_rows() {
-        const rows_layer = createSVG('g', { append_to: this.layers.grid });
-        const lines_layer = createSVG('g', { append_to: this.layers.grid });
+        const rows_layer = createSVG('g', {append_to: this.layers.grid});
+        const lines_layer = createSVG('g', {append_to: this.layers.grid});
 
         const row_width = this.dates.length * this.options.column_width;
         const row_height = this.options.bar_height + this.options.padding;
@@ -391,7 +465,10 @@ export default class Gantt {
                 tick_class += ' thick';
             }
             // thick ticks for quarters
-            if (this.view_is(VIEW_MODE.MONTH) && (date.getMonth() + 1) % 3 === 0) {
+            if (
+                this.view_is(VIEW_MODE.MONTH) &&
+                (date.getMonth() + 1) % 3 === 0
+            ) {
                 tick_class += ' thick';
             }
 
@@ -424,7 +501,7 @@ export default class Gantt {
             const width = this.options.column_width;
             const height =
                 (this.options.bar_height + this.options.padding) *
-                    this.tasks.length +
+                this.tasks.length +
                 this.options.header_height +
                 this.options.padding / 2;
 
@@ -510,8 +587,8 @@ export default class Gantt {
             'Half Day_upper':
                 date.getDate() !== last_date.getDate()
                     ? date.getMonth() !== last_date.getMonth()
-                      ? date_utils.format(date, 'D MMM', this.options.language)
-                      : date_utils.format(date, 'D', this.options.language)
+                    ? date_utils.format(date, 'D MMM', this.options.language)
+                    : date_utils.format(date, 'D', this.options.language)
                     : '',
             Day_upper:
                 date.getMonth() !== last_date.getMonth()
@@ -624,8 +701,8 @@ export default class Gantt {
 
         const scroll_pos =
             hours_before_first_task /
-                this.options.step *
-                this.options.column_width -
+            this.options.step *
+            this.options.column_width -
             this.options.column_width;
 
         parent_element.scrollLeft = scroll_pos;
@@ -694,7 +771,6 @@ export default class Gantt {
         $.on(this.$svg, 'mousemove', e => {
             if (!action_in_progress()) return;
             const dx = e.offsetX - x_on_start;
-            const dy = e.offsetY - y_on_start;
 
             bars.forEach(bar => {
                 const $bar = bar.$bar;
@@ -718,7 +794,7 @@ export default class Gantt {
                         });
                     }
                 } else if (is_dragging) {
-                    bar.update_bar_position({ x: $bar.ox + $bar.finaldx });
+                    bar.update_bar_position({x: $bar.ox + $bar.finaldx});
                 }
             });
         });
@@ -741,60 +817,6 @@ export default class Gantt {
                 bar.date_changed();
                 bar.set_action_completed();
             });
-        });
-
-        this.bind_bar_progress();
-    }
-
-    bind_bar_progress() {
-        let x_on_start = 0;
-        let y_on_start = 0;
-        let is_resizing = null;
-        let bar = null;
-        let $bar_progress = null;
-        let $bar = null;
-
-        $.on(this.$svg, 'mousedown', '.handle.progress', (e, handle) => {
-            is_resizing = true;
-            x_on_start = e.offsetX;
-            y_on_start = e.offsetY;
-
-            const $bar_wrapper = $.closest('.bar-wrapper', handle);
-            const id = $bar_wrapper.getAttribute('data-id');
-            bar = this.get_bar(id);
-
-            $bar_progress = bar.$bar_progress;
-            $bar = bar.$bar;
-
-            $bar_progress.finaldx = 0;
-            $bar_progress.owidth = $bar_progress.getWidth();
-            $bar_progress.min_dx = -$bar_progress.getWidth();
-            $bar_progress.max_dx = $bar.getWidth() - $bar_progress.getWidth();
-        });
-
-        $.on(this.$svg, 'mousemove', e => {
-            if (!is_resizing) return;
-            let dx = e.offsetX - x_on_start;
-            let dy = e.offsetY - y_on_start;
-
-            if (dx > $bar_progress.max_dx) {
-                dx = $bar_progress.max_dx;
-            }
-            if (dx < $bar_progress.min_dx) {
-                dx = $bar_progress.min_dx;
-            }
-
-            const $handle = bar.$handle_progress;
-            $.attr($bar_progress, 'width', $bar_progress.owidth + dx);
-            $.attr($handle, 'points', bar.get_progress_polygon_points());
-            $bar_progress.finaldx = dx;
-        });
-
-        $.on(this.$svg, 'mouseup', () => {
-            is_resizing = false;
-            if (!($bar_progress && $bar_progress.finaldx)) return;
-            bar.progress_changed();
-            bar.set_action_completed();
         });
     }
 
