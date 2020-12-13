@@ -1,7 +1,7 @@
 {
-  "name": "frappe-gantt",
-  "version": "0.5.0",
-  "description": "A simple, modern, interactive gantt library for the web",
+  "name": "js-booking-calendar",
+  "version": "1.0.0",
+  "description": "A simple booking calendar with a gantt style.",
   "main": "src/index.js",
   "scripts": {
     "start": "yarn run dev",
@@ -13,22 +13,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/frappe/gantt.git"
+    "url": "https://github.com/svschannak/js-booking-calendar.git"
   },
   "keywords": [
-    "gantt",
-    "svg",
-    "simple gantt",
-    "project timeline",
-    "interactive gantt",
-    "project management"
+    "booking",
+    "calendar",
+    "gantt"
   ],
-  "author": "Faris Ansari",
+  "author": "Sven Schannak & Faris Ansari (creator of frappe/gantt)",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/frappe/gantt/issues"
-  },
-  "homepage": "https://github.com/frappe/gantt",
+  "homepage": "https://github.com/svschannak/js-booking-calendar/settings",
   "devDependencies": {
     "babel-preset-env": "^1.6.1",
     "deepmerge": "^2.0.1",
