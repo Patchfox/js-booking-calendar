@@ -1,4 +1,5 @@
 import sass from 'rollup-plugin-sass';
+import uglify from "rollup-plugin-uglify";
 
 export default {
     input: 'src/index.js',
