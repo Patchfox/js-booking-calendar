@@ -1,52 +1,68 @@
 <div align="center">
-    <img src="https://github.com/frappe/design/blob/master/logos/logo-2019/frappe-gantt-logo.png" height="128">
-    <h2>Frappe Gantt</h2>
+    <h2>JS Booking Calendar</h2>
     <p align="center">
-        <p>A simple, interactive, modern gantt chart library for the web</p>
-        <a href="https://frappe.github.io/gantt">
-            <b>View the demo »</b>
-        </a>
+        <p>Heavily customizable booking calendar in gantt style</p>
+        <p>This is based on the work of <a href="https://frappe.github.io/gantt"><b>Frappe Gantt</b></a></p>
     </p>
 </div>
 
 <p align="center">
     <a href="https://frappe.github.io/gantt">
-        <img src="https://cloud.githubusercontent.com/assets/9355208/21537921/4a38b194-cdbd-11e6-8110-e0da19678a6d.png">
+        <img src="https://user-images.githubusercontent.com/867456/102086034-c0845500-3e17-11eb-98c7-e65c62494f36.png">
     </a>
 </p>
 
 ### Install
 ```
-npm install frappe-gantt
+npm install js-booking-calendar
 ```
 
 ### Usage
 Include it in your HTML:
 ```
-<script src="frappe-gantt.min.js"></script>
-<link rel="stylesheet" href="frappe-gantt.css">
+import Gantt from "js-booking-calendar";
+
+<svg id="gantt"></svg>
 ```
 
-And start hacking:
+Configuration:
 ```js
-var tasks = [
-  {
-    id: 'Task 1',
-    name: 'Redesign website',
-    start: '2016-12-28',
-    end: '2016-12-31',
-    progress: 20,
-    dependencies: 'Task 2, Task 3',
-    custom_class: 'bar-milestone' // optional
-  },
-  ...
-]
-var gantt = new Gantt("#gantt", tasks);
-```
+const properties = [
+    {
+        'name': 'Group 1',
+        'background_color': 'red',
+        'bookings': [
+            {
+                id: '1',
+                start: '2020-12-01',
+                end: '2020-12-01',
+                name: 'Foo',
+                description: 'Description',
+            },
+            {
+                id: '2',
+                start: '2020-12-02',
+                end: '2020-12-02',
+                name: 'Bar',
+                description: 'Description',
+            },
+        ]
+    }	
+];
 
-You can also pass various options to the Gantt constructor:
-```js
-var gantt = new Gantt("#gantt", tasks, {
+const options = {
+    on_click: function (task) {
+        console.log(task);
+    },
+    on_date_change: function(task, start, end) {
+        console.log(task, start, end);
+    },
+    on_progress_change: function(task, progress) {
+        console.log(task, progress);
+    },
+    on_view_change: function(mode) {
+        console.log(mode);
+    },
     header_height: 50,
     column_width: 30,
     step: 24,
@@ -57,18 +73,13 @@ var gantt = new Gantt("#gantt", tasks, {
     padding: 18,
     view_mode: 'Day',   
     date_format: 'YYYY-MM-DD',
-    custom_popup_html: null
-});
+    custom_popup_html: null,
+    start_date: "2020-12-01",
+    end_date: "2021-03-31",
+    show_label: true
+};
+
+new Gantt("#gantt", properties, options); 
 ```
 
-If you want to contribute:
-
-1. Clone this repo.
-2. `cd` into project directory
-3. `yarn`
-4. `yarn run dev`
-
 License: MIT
-
-------------------
-Project maintained by [frappe](https://github.com/frappe)

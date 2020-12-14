@@ -4,12 +4,12 @@ export default {
     input: 'src/index.js',
     output: {
         name: 'Gantt',
-        file: 'dist/frappe-gantt.js',
+        file: 'dist/js-booking-calendar.js',
         format: 'iife'
     },
     plugins: [
         sass({
-            output: 'dist/frappe-gantt.css'
+            output: 'dist/js-booking-calendar.css'
         })
     ]
 };

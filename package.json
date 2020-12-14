@@ -1,6 +1,6 @@
 {
   "name": "js-booking-calendar",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "A simple booking calendar with a gantt style.",
   "main": "src/index.js",
   "scripts": {
