@@ -2,17 +2,18 @@ import date_utils from './date_utils';
 import {$, createSVG, animateSVG} from './svg_utils';
 
 export default class Bar {
-    constructor(gantt, task) {
-        this.set_defaults(gantt, task);
+    constructor(gantt, task, showLabel = true) {
+        this.set_defaults(gantt, task, showLabel);
         this.prepare();
         this.draw();
         this.bind();
     }
 
-    set_defaults(gantt, task) {
+    set_defaults(gantt, task, showLabel) {
         this.action_completed = false;
         this.gantt = gantt;
         this.task = task;
+        this.showLabel = showLabel;
     }
 
     prepare() {
@@ -64,21 +65,25 @@ export default class Bar {
 
     draw() {
         this.draw_bar();
-        this.draw_label();
+        if (this.showLabel) {
+            this.draw_label();
+        }
         this.draw_resize_handles();
     }
 
     draw_bar() {
+        const barMargin = this.gantt.options.bar_margin;
+
         this.$bar = createSVG('rect', {
-            x: this.x,
+            x: barMargin + this.x,
             y: this.y,
-            width: this.width,
+            width: this.width - barMargin,
             height: this.height,
             rx: this.corner_radius,
             ry: this.corner_radius,
             class: 'bar',
             append_to: this.bar_group,
-            fill: this.stringToHslColor(this.task.group_name, 30, 80)
+            fill: this.stringToHslColor(this.task.group_name, 50, 70)
         });
 
         animateSVG(this.$bar, 'width', 0, this.width);
@@ -199,7 +204,7 @@ export default class Bar {
             }
             this.update_attr(bar, 'x', x);
         }
-        if (width && width >= this.gantt.options.column_width) {
+        if (width && width > 0) {
             this.update_attr(bar, 'width', width);
         }
         this.update_label_position();
@@ -307,6 +312,7 @@ export default class Bar {
                     ? 0
                     : this.gantt.options.column_width);
         }
+
         return position;
     }
 
@@ -319,6 +325,9 @@ export default class Bar {
     }
 
     update_label_position() {
+        if (!this.showLabel) {
+            return;
+        }
         const bar = this.$bar,
             label = this.group.querySelector('.bar-label');
 
@@ -351,6 +360,7 @@ export default class Bar {
 
     stringToHslColor(str, s, l) {
         var hash = 0;
+        str = str + str + str;
         for (var i = 0; i < str.length; i++) {
             hash = str.charCodeAt(i) + ((hash << 5) - hash);
         }

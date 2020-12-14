@@ -4,7 +4,7 @@ import Bar from './bar';
 import Arrow from './arrow';
 import Popup from './popup';
 
-import './gantt.scss';
+import './gantt.scss'
 
 const VIEW_MODE = {
     QUARTER_DAY: 'Quarter Day',
@@ -89,7 +89,9 @@ export default class Gantt {
             language: 'en',
             start_date: null,
             end_date: null,
-            actions_width: 200
+            actions_width: 200,
+            show_label: true,
+            bar_margin: 3
         };
         this.options = Object.assign({}, default_options, options);
     }
@@ -660,7 +662,7 @@ export default class Gantt {
 
     make_bars() {
         this.bars = this.tasks.map(task => {
-            const bar = new Bar(this, task);
+            const bar = new Bar(this, task, this.options.show_label);
             this.layers.bar.appendChild(bar.group);
             return bar;
         });
@@ -885,6 +887,7 @@ export default class Gantt {
                     ? 0
                     : this.options.column_width);
         }
+
         return position;
     }
 

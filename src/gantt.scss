@@ -15,7 +15,7 @@ $handle-color: #ddd !default;
 		fill: none;
 	}
 	.grid-header {
-		fill: #ffffff;
+		fill: #fff;
 		stroke: $border-color;
 		stroke-width: 1.4;
 	}
@@ -25,8 +25,27 @@ $handle-color: #ddd !default;
 	.grid-row:nth-child(even) {
 		fill: $light-bg;
 	}
+	.actions {
+		fill: #ffffff;
+	}
+
+	.actions:nth-child(even) {
+		fill: #e2e2e2;
+	}
+
+	.actions-header{
+		fill: #ffffff;
+	}
+
+	.actions-label {
+		fill: #353535;
+		dominant-baseline: central;
+		text-anchor: middle;
+		font-size: 12px;
+		font-weight: bold;
+	}
 	.row-line {
-		stroke: $light-border-color;
+		stroke: #ebeff2;
 	}
 	.tick {
 		stroke: $border-color;
@@ -36,7 +55,7 @@ $handle-color: #ddd !default;
 		}
 	}
 	.today-highlight {
-		fill: $light-yellow;
+		fill: #ffee95;
 		opacity: 0.7;
 	}
 
@@ -47,7 +66,6 @@ $handle-color: #ddd !default;
 	}
 
 	.bar {
-		fill: $bar-color;
 		stroke: $bar-stroke;
 		stroke-width: 0;
 		transition: stroke-width .3s ease;
@@ -67,10 +85,10 @@ $handle-color: #ddd !default;
 		}
 	}
 	.bar-label {
-		fill: #fff;
+		fill: #000;
 		dominant-baseline: central;
 		text-anchor: middle;
-		font-size: 12px;
+		font-size: 10px;
 		font-weight: lighter;
 
 		&.big {

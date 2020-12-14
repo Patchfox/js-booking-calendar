@@ -1,12 +1,12 @@
 {
   "name": "js-booking-calendar",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A simple booking calendar with a gantt style.",
   "main": "src/index.js",
   "scripts": {
     "start": "yarn run dev",
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
+    "build": "rollup --config rollup.config.prod.js",
+    "dev": "rollup --config rollup.config.dev.js -w",
     "test": "jest",
     "test:watch": "jest --watch",
     "prettier": "prettier es6 --write \"{src/*,tests/*,rollup.config}.js\""
@@ -24,15 +24,16 @@
   "license": "MIT",
   "homepage": "https://github.com/svschannak/js-booking-calendar/settings",
   "devDependencies": {
-    "babel-preset-env": "^1.6.1",
-    "deepmerge": "^2.0.1",
-    "eslint": "^4.17.0",
-    "eslint-config-prettier": "^2.9.0",
-    "eslint-plugin-prettier": "^2.6.0",
-    "jest": "^22.2.1",
+    "babel-preset-env": "^1.7.0",
+    "deepmerge": "^2.2.1",
+    "eslint": "^4.19.1",
+    "eslint-config-prettier": "^2.10.0",
+    "eslint-plugin-prettier": "^2.7.0",
+    "jest": "^22.4.4",
     "prettier": "1.10.2",
-    "rollup": "^0.55.3",
+    "rollup": "^2.35.0",
     "rollup-plugin-sass": "^1.2.2",
+    "rollup-plugin-scss": "^2.6.1",
     "rollup-plugin-uglify": "^3.0.0"
   },
   "eslintIgnore": [
