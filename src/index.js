@@ -124,6 +124,7 @@ export default class Gantt {
             // cache index
             task._index = propertyIndex;
             task.group_name = this.properties[propertyIndex]['name'];
+            task.bg_color = this.properties[propertyIndex]['background_color'];
 
             // invalid dates
             if (!task.start && !task.end) {

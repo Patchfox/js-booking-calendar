@@ -543,7 +543,7 @@ var Gantt = (function () {
                 ry: this.corner_radius,
                 class: 'bar',
                 append_to: this.bar_group,
-                fill: this.stringToHslColor(this.task.group_name, 50, 70)
+                fill: this.task.bg_color ? this.task.bg_color : this.stringToHslColor(this.task.group_name, 50, 70)
             });
 
             animateSVG(this.$bar, 'width', 0, this.width);
@@ -1112,6 +1112,7 @@ var Gantt = (function () {
                 // cache index
                 task._index = propertyIndex;
                 task.group_name = this.properties[propertyIndex]['name'];
+                task.bg_color = this.properties[propertyIndex]['background_color'];
 
                 // invalid dates
                 if (!task.start && !task.end) {
