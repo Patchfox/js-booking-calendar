@@ -1731,9 +1731,8 @@ var Gantt = (function () {
         send_event_to_add_new_entry(e) {
             console.log(e);
             const rowHeight = this.options.bar_height + this.options.padding;
-            const row = Math.floor((e.layerY - this.header_height) / rowHeight);
-            const column = Math.ceil((e.layerX - this.options.actions_width) / this.options.column_width);
-            console.log('col', column);
+            const row = Math.floor((e.offsetY - this.header_height) / rowHeight);
+            const column = Math.floor(((e.offsetX  -1) - this.options.actions_width) / this.options.column_width);
             const newStartDate = date_utils.add(this.gantt_start, column, 'day');
             const newEndDate = date_utils.add(newStartDate, this.options.default_booking_length_in_days, 'day');
 
@@ -1741,7 +1740,7 @@ var Gantt = (function () {
             this.trigger_event('date_added', [
                 newStartDate,
                 newEndDate,
-                properties[row],
+                this.properties[row],
                 row,
                 e.offsetX - e.layerX -1,
                 e.offsetY - e.layerY -1
