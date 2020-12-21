@@ -91,7 +91,8 @@ export default class Gantt {
             end_date: null,
             actions_width: 200,
             show_label: true,
-            bar_margin: 3
+            bar_margin: 3,
+            animations_active: false
         };
         this.options = Object.assign({}, default_options, options);
     }

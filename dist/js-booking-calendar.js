@@ -543,10 +543,11 @@ var Gantt = (function () {
                 ry: this.corner_radius,
                 class: 'bar',
                 append_to: this.bar_group,
-                fill: this.task.bg_color ? this.task.bg_color : this.stringToHslColor(this.task.group_name, 50, 70)
+                fill: this.task.bg_color ? this.task.bg_color : this.stringToHslColor(this.task.group_name, 50, 70),
             });
-
-            animateSVG(this.$bar, 'width', 0, this.width);
+            if (this.gantt.options.animations_active) {
+                animateSVG(this.$bar, 'width', 0, this.width);
+            }
 
             if (this.invalid) {
                 this.$bar.classList.add('bar-invalid');
@@ -1079,7 +1080,8 @@ var Gantt = (function () {
                 end_date: null,
                 actions_width: 200,
                 show_label: true,
-                bar_margin: 3
+                bar_margin: 3,
+                animations_active: false
             };
             this.options = Object.assign({}, default_options, options);
         }
