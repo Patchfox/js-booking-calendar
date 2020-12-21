@@ -63,6 +63,15 @@ const options = {
     on_view_change: function(mode) {
         console.log(mode);
     },
+    on_date_added: function (start, end, property, propertyIdx, xPosition, yPosition){
+        // executed with double click on column
+        console.log('start', start);
+        console.log('end', end);
+        console.log('property', property);
+        console.log('propertyIdx', propertyIdx);
+        console.log('xPosition', xPosition);
+        console.log('yPosition', yPosition);
+    },
     header_height: 50,
     column_width: 30,
     step: 24,
@@ -76,7 +85,8 @@ const options = {
     custom_popup_html: null,
     start_date: "2020-12-01",
     end_date: "2021-03-31",
-    show_label: true
+    show_label: true,
+    animations_active: false
 };
 
 new Gantt("#gantt", properties, options); 

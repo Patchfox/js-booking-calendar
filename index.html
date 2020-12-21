@@ -24,6 +24,41 @@
 		<div class="gantt-target"></div>
 	</div>
 	<script>
+
+		function initGantt(properties, init_scroll_position = null){
+			var gantt_chart = new Gantt(".gantt-target", properties, {
+
+				on_click: function (task) {
+					console.log(task);
+				},
+				on_date_change: function(task, start, end) {
+					console.log(task, start, end);
+				},
+				on_progress_change: function(task, progress) {
+					console.log(task, progress);
+				},
+				on_view_change: function(mode) {
+					console.log(mode);
+				},
+				on_date_added: function (start, end, property, propertyIdx, xPosition, yPosition){
+					console.log('start', start);
+					console.log('end', end);
+					console.log('property', property);
+					console.log('propertyIdx', propertyIdx);
+					console.log('xPosition', xPosition);
+					console.log('yPosition', yPosition);
+				},
+				view_mode: 'Day',
+				language: 'en',
+				start_date: "2020-12-01",
+				end_date: "2021-03-31",
+				show_label: false,
+				bar_corner_radius: 0,
+				column_width: 10,
+				init_scroll_position: init_scroll_position
+			});
+		}
+
 		var properties = [
 			{
 				'name': 'Group 1',
@@ -85,29 +120,8 @@
 			}
 		];
 
-		var gantt_chart = new Gantt(".gantt-target", properties, {
+		initGantt(properties);
 
-			on_click: function (task) {
-				console.log(task);
-			},
-			on_date_change: function(task, start, end) {
-				console.log(task, start, end);
-			},
-			on_progress_change: function(task, progress) {
-				console.log(task, progress);
-			},
-			on_view_change: function(mode) {
-				console.log(mode);
-			},
-			view_mode: 'Day',
-			language: 'en',
-			start_date: "2020-12-01",
-			end_date: "2021-03-31",
-			show_label: false,
-			bar_corner_radius: 0,
-			column_width: 10,
-		});
-		console.log(gantt_chart);
 	</script>
 </body>
 </html>

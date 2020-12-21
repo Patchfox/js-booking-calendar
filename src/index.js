@@ -25,6 +25,7 @@ export default class Gantt {
         this.bind_events();
     }
 
+
     setup_wrapper(element) {
         let svg_element, wrapper_element;
 
@@ -92,7 +93,9 @@ export default class Gantt {
             actions_width: 200,
             show_label: true,
             bar_margin: 3,
-            animations_active: false
+            animations_active: false,
+            init_scroll_position: null,
+            default_booking_length_in_days: 3
         };
         this.options = Object.assign({}, default_options, options);
     }
@@ -455,12 +458,12 @@ export default class Gantt {
 
     make_grid_header() {
         const header_width = this.dates.length * this.options.column_width;
-        const header_height = this.options.header_height + 10;
+        this.header_height = this.options.header_height + 10;
         createSVG('rect', {
             x: 0,
             y: 0,
             width: header_width,
-            height: header_height,
+            height: this.header_height,
             class: 'grid-header',
             append_to: this.layers.grid
         });
@@ -713,8 +716,14 @@ export default class Gantt {
     }
 
     set_scroll_position() {
+
         const parent_element = this.$svg.parentElement;
         if (!parent_element) return;
+        if (this.options.init_scroll_position){
+            parent_element.scrollLeft = this.options.init_scroll_position;
+            return;
+        }
+
 
         const hours_before_first_task = date_utils.diff(
             this.get_oldest_starting_date(),
@@ -727,8 +736,27 @@ export default class Gantt {
             this.options.step *
             this.options.column_width -
             this.options.column_width;
-
         parent_element.scrollLeft = scroll_pos;
+    }
+
+    send_event_to_add_new_entry(e) {
+        console.log(e);
+        const rowHeight = this.options.bar_height + this.options.padding;
+        const row = Math.floor((e.layerY - this.header_height) / rowHeight)
+        const column = Math.ceil((e.layerX - this.options.actions_width) / this.options.column_width)
+        console.log('col', column)
+        const newStartDate = date_utils.add(this.gantt_start, column, 'day');
+        const newEndDate = date_utils.add(newStartDate, this.options.default_booking_length_in_days, 'day');
+
+
+        this.trigger_event('date_added', [
+            newStartDate,
+            newEndDate,
+            properties[row],
+            row,
+            e.offsetX - e.layerX -1,
+            e.offsetY - e.layerY -1
+        ]);
     }
 
     bind_grid_click() {
@@ -737,8 +765,17 @@ export default class Gantt {
             this.options.popup_trigger,
             '.grid-row, .grid-header',
             () => {
+
                 this.unselect_all();
                 this.hide_popup();
+            }
+        );
+        $.on(
+            this.$svg,
+            'dblclick',
+            '.grid-row',
+            (e) => {
+                this.send_event_to_add_new_entry(e)
             }
         );
     }
