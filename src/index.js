@@ -873,7 +873,7 @@ export default class Gantt {
             bars.forEach(bar => {
                 const $bar = bar.$bar;
                 if (!$bar.finaldx) return;
-                bar.date_changed();
+                bar.date_changed(e);
                 bar.set_action_completed();
             });
         });

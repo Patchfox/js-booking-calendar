@@ -54,8 +54,8 @@ const options = {
     on_click: function (task) {
         console.log(task);
     },
-    on_date_change: function(task, start, end) {
-        console.log(task, start, end);
+    on_date_change: function(task, start, end, lastScrollXPosition) {
+        console.log(task);
     },
     on_progress_change: function(task, progress) {
         console.log(task, progress);

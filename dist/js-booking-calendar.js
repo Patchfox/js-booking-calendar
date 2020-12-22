@@ -673,7 +673,7 @@ var Gantt = (function () {
             this.update_arrow_position();
         }
 
-        date_changed() {
+        date_changed(e) {
             let changed = false;
             const {new_start_date, new_end_date} = this.compute_start_end_date();
 
@@ -692,7 +692,8 @@ var Gantt = (function () {
             this.gantt.trigger_event('date_change', [
                 this.task,
                 new_start_date,
-                date_utils.add(new_end_date, -1, 'second')
+                date_utils.add(new_end_date, -1, 'second'),
+                e.offsetX - e.layerX -1
             ]);
         }
 
@@ -1862,7 +1863,7 @@ var Gantt = (function () {
                 bars.forEach(bar => {
                     const $bar = bar.$bar;
                     if (!$bar.finaldx) return;
-                    bar.date_changed();
+                    bar.date_changed(e);
                     bar.set_action_completed();
                 });
             });
