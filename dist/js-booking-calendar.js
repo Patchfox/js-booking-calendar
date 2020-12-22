@@ -1709,7 +1709,7 @@ var Gantt = (function () {
 
             const parent_element = this.$svg.parentElement;
             if (!parent_element) return;
-            if (this.options.init_scroll_position){
+            if (this.options.init_scroll_position) {
                 parent_element.scrollLeft = this.options.init_scroll_position;
                 return;
             }
@@ -1733,7 +1733,7 @@ var Gantt = (function () {
             console.log(e);
             const rowHeight = this.options.bar_height + this.options.padding;
             const row = Math.floor((e.offsetY - this.header_height) / rowHeight);
-            const column = Math.floor(((e.offsetX  -1) - this.options.actions_width) / this.options.column_width);
+            const column = Math.floor(((e.offsetX - 1) - this.options.actions_width) / this.options.column_width);
             const newStartDate = date_utils.add(this.gantt_start, column, 'day');
             const newEndDate = date_utils.add(newStartDate, this.options.default_booking_length_in_days, 'day');
 
@@ -1743,8 +1743,8 @@ var Gantt = (function () {
                 newEndDate,
                 this.properties[row],
                 row,
-                e.offsetX - e.layerX -1,
-                e.offsetY - e.layerY -1
+                e.offsetX - e.layerX - 1,
+                e.offsetY - e.layerY - 1
             ]);
         }
 
@@ -1809,6 +1809,9 @@ var Gantt = (function () {
                 this.bar_being_dragged = parent_bar_id;
 
                 bars.forEach(bar => {
+                    if (!bar) {
+                        return;
+                    }
                     const $bar = bar.$bar;
                     $bar.ox = $bar.getX();
                     $bar.oy = $bar.getY();
@@ -1822,6 +1825,9 @@ var Gantt = (function () {
                 const dx = e.offsetX - x_on_start;
 
                 bars.forEach(bar => {
+                    if (!bar) {
+                        return;
+                    }
                     const $bar = bar.$bar;
                     $bar.finaldx = this.get_snap_position(dx);
 
@@ -1850,7 +1856,12 @@ var Gantt = (function () {
 
             document.addEventListener('mouseup', e => {
                 if (is_dragging || is_resizing_left || is_resizing_right) {
-                    bars.forEach(bar => bar.group.classList.remove('active'));
+                    bars.forEach(bar => {
+                        if (!bar) {
+                            return;
+                        }
+                        bar.group.classList.remove('active');
+                    });
                 }
 
                 is_dragging = false;
@@ -1861,6 +1872,9 @@ var Gantt = (function () {
             $.on(this.$svg, 'mouseup', e => {
                 this.bar_being_dragged = null;
                 bars.forEach(bar => {
+                    if (!bar) {
+                        return;
+                    }
                     const $bar = bar.$bar;
                     if (!$bar.finaldx) return;
                     bar.date_changed(e);
@@ -1981,7 +1995,7 @@ var Gantt = (function () {
                 .reduce(
                     (prev_date, cur_date) =>
                         cur_date <= prev_date ? cur_date : prev_date
-                , 0);
+                    , 0);
         }
 
         /**

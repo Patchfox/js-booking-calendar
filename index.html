@@ -26,6 +26,7 @@
 	<script>
 
 		function initGantt(properties, init_scroll_position = null){
+			console.log('properties', properties);
 			var gantt_chart = new Gantt(".gantt-target", properties, {
 
 				on_click: function (task) {
@@ -47,6 +48,16 @@
 					console.log('propertyIdx', propertyIdx);
 					console.log('xPosition', xPosition);
 					console.log('yPosition', yPosition);
+					let props = properties;
+					props[propertyIdx]['bookings'].push({
+						id: '100',
+						start: "2020-12-03",
+						end: "2020-12-06",
+						name: 'Foodddddddddddddddddd',
+						description: 'Beschreibung',
+					})
+					initGantt(props, xPosition)
+
 				},
 				view_mode: 'Day',
 				language: 'en',
@@ -63,9 +74,61 @@
 			{
 				'name': 'Group 1',
 				'background_color': 'red',
-				'bookings': []
+				'bookings': [
+					{
+						id: '1',
+						start: '2020-12-01',
+						end: '2020-12-01',
+						name: 'Foodddddddddddddddddd',
+						description: 'Beschreibung',
+					},
+					{
+						id: '2',
+						start: '2020-12-02',
+						end: '2020-12-02',
+						name: 'Bar',
+						description: 'Beschreibung',
+					},
+				]
 			},
-
+			{
+				'name': 'Group 2',
+				'bookings': [
+					{
+						id: '3',
+						start: '2020-12-01',
+						end: '2020-12-15',
+						name: 'Foo',
+						description: 'Beschreibung',
+					},
+					{
+						id: '4',
+						start: '2020-12-18',
+						end: '2020-12-20',
+						name: 'Bar',
+						description: 'Beschreibung',
+					},
+				]
+			},
+			{
+				'name': 'Group 3',
+				'bookings': [
+					{
+						id: '5',
+						start: '2020-12-01',
+						end: '2020-12-15',
+						name: 'Foo',
+						description: 'Beschreibung',
+					},
+					{
+						id: '6',
+						start: '2020-12-18',
+						end: '2020-12-20',
+						name: 'Bar',
+						description: 'Beschreibung',
+					},
+				]
+			}
 		];
 
 		initGantt(properties);
