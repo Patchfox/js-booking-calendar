@@ -604,6 +604,15 @@ var Gantt = (function () {
         }
 
         setup_click_event() {
+            if (this.gantt.options.popup_trigger !== 'click') {
+                $.on(this.group, 'click', e => {
+                    if (this.action_completed) {
+                        // just finished a move action, wait for a few seconds
+                        return;
+                    }
+                    this.gantt.options.custom_click_on_bar(this.task);
+                });
+            }
             $.on(this.group, 'focus ' + this.gantt.options.popup_trigger, e => {
                 if (this.action_completed) {
                     // just finished a move action, wait for a few seconds
@@ -613,15 +622,6 @@ var Gantt = (function () {
                 this.show_popup();
                 this.gantt.unselect_all();
                 this.group.classList.add('active');
-            });
-
-            $.on(this.group, 'dblclick', e => {
-                if (this.action_completed) {
-                    // just finished a move action, wait for a few seconds
-                    return;
-                }
-
-                this.gantt.trigger_event('click', [this.task]);
             });
         }
 
@@ -693,7 +693,7 @@ var Gantt = (function () {
                 this.task,
                 new_start_date,
                 date_utils.add(new_end_date, -1, 'second'),
-                e.offsetX - e.layerX -1
+                e.offsetX - e.layerX - 1
             ]);
         }
 
@@ -957,7 +957,6 @@ var Gantt = (function () {
                 options.position = 'left';
             }
             const target_element = options.target_element;
-            console.log('target_element', target_element);
 
             if (this.custom_html) {
                 let html = this.custom_html(options.task);
@@ -979,10 +978,8 @@ var Gantt = (function () {
                 position_meta = options.target_element.getBBox();
             }
 
-            console.log('position_meta', position_meta);
 
             if (options.position === 'left') {
-                console.log(this.offset_x);
                 this.parent.style.left =
                     position_meta.x + (position_meta.width + 10) + this.offset_x + 'px';
                 this.parent.style.top = position_meta.y + 'px';
@@ -1090,7 +1087,8 @@ var Gantt = (function () {
                 bar_margin: 3,
                 animations_active: false,
                 init_scroll_position: null,
-                default_booking_length_in_days: 3
+                default_booking_length_in_days: 3,
+                custom_click_on_bar: function(task) {}
             };
             this.options = Object.assign({}, default_options, options);
         }

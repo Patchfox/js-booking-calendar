@@ -144,6 +144,15 @@ export default class Bar {
     }
 
     setup_click_event() {
+        if (this.gantt.options.popup_trigger !== 'click') {
+            $.on(this.group, 'click', e => {
+                if (this.action_completed) {
+                    // just finished a move action, wait for a few seconds
+                    return;
+                }
+                this.gantt.options.custom_click_on_bar(this.task);
+            });
+        }
         $.on(this.group, 'focus ' + this.gantt.options.popup_trigger, e => {
             if (this.action_completed) {
                 // just finished a move action, wait for a few seconds
@@ -153,15 +162,6 @@ export default class Bar {
             this.show_popup();
             this.gantt.unselect_all();
             this.group.classList.add('active');
-        });
-
-        $.on(this.group, 'dblclick', e => {
-            if (this.action_completed) {
-                // just finished a move action, wait for a few seconds
-                return;
-            }
-
-            this.gantt.trigger_event('click', [this.task]);
         });
     }
 
@@ -233,7 +233,7 @@ export default class Bar {
             this.task,
             new_start_date,
             date_utils.add(new_end_date, -1, 'second'),
-            e.offsetX - e.layerX -1
+            e.offsetX - e.layerX - 1
         ]);
     }
 

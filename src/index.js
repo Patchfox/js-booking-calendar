@@ -95,7 +95,8 @@ export default class Gantt {
             bar_margin: 3,
             animations_active: false,
             init_scroll_position: null,
-            default_booking_length_in_days: 3
+            default_booking_length_in_days: 3,
+            custom_click_on_bar: function(task) {}
         };
         this.options = Object.assign({}, default_options, options);
     }

@@ -76,6 +76,7 @@ const options = {
     column_width: 30,
     step: 24,
     view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
+    popup_trigger: 'mouseover',
     bar_height: 20,
     bar_corner_radius: 3,
     arrow_curve: 5,
@@ -87,7 +88,11 @@ const options = {
     end_date: "2021-03-31",
     show_label: true,
     animations_active: false,
-    init_scroll_position: 0 
+    init_scroll_position: 0,
+    custom_click_on_bar: function (task) {
+        // only works if popup_trigger is not set to "click" 
+        console.log('custom_click_on_bar', task)
+    }
 };
 
 new Gantt("#gantt", properties, options); 

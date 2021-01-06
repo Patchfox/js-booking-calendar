@@ -1,138 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<title>JS Booking Calendar</title>
-	<style>
-		body {
-			font-family: sans-serif;
-		}
-		.container {
-			width: 80%;
-			margin: 0 auto;
-		}
-		/* custom class */
-		.gantt .bar-milestone .bar {
-			fill: tomato;
-		}
-	</style>
-	<link rel="stylesheet" href="dist/js-booking-calendar.css" />
-	<script src="dist/js-booking-calendar.js"></script>
+    <meta charset="UTF-8">
+    <title>JS Booking Calendar</title>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        /* custom class */
+        .gantt .bar-milestone .bar {
+            fill: tomato;
+        }
+    </style>
+    <link rel="stylesheet" href="dist/js-booking-calendar.css"/>
+    <script src="dist/js-booking-calendar.js"></script>
 </head>
 <body>
-	<div class="container">
-		<div class="gantt-target"></div>
-	</div>
-	<script>
+<div class="container">
+    <div class="gantt-target"></div>
+</div>
+<script>
 
-		function initGantt(properties, init_scroll_position = null){
-			console.log('properties', properties);
-			var gantt_chart = new Gantt(".gantt-target", properties, {
+    function initGantt(properties, init_scroll_position = null) {
+        console.log('properties', properties);
+        var gantt_chart = new Gantt(".gantt-target", properties, {
 
-				on_click: function (task) {
-					console.log(task);
-				},
-				on_date_change: function(task, start, end, scrollXPosition) {
-					console.log(scrollXPosition);
-				},
-				on_progress_change: function(task, progress) {
-					console.log(task, progress);
-				},
-				on_view_change: function(mode) {
-					console.log(mode);
-				},
-				on_date_added: function (start, end, property, propertyIdx, xPosition, yPosition){
-					console.log('start', start);
-					console.log('end', end);
-					console.log('property', property);
-					console.log('propertyIdx', propertyIdx);
-					console.log('xPosition', xPosition);
-					console.log('yPosition', yPosition);
-					let props = properties;
-					props[propertyIdx]['bookings'].push({
-						id: '100',
-						start: "2020-12-03",
-						end: "2020-12-06",
-						name: 'Foodddddddddddddddddd',
-						description: 'Beschreibung',
-					})
-					initGantt(props, xPosition)
+            on_click: function (task) {
+                console.log(task);
+            },
+            on_date_change: function (task, start, end, scrollXPosition) {
+                console.log(scrollXPosition);
+            },
+            on_progress_change: function (task, progress) {
+                console.log(task, progress);
+            },
+            on_view_change: function (mode) {
+                console.log(mode);
+            },
+            on_date_added: function (start, end, property, propertyIdx, xPosition, yPosition) {
+                console.log('start', start);
+                console.log('end', end);
+                console.log('property', property);
+                console.log('propertyIdx', propertyIdx);
+                console.log('xPosition', xPosition);
+                console.log('yPosition', yPosition);
+                let props = properties;
+                props[propertyIdx]['bookings'].push({
+                    id: '100',
+                    start: "2020-12-03",
+                    end: "2020-12-06",
+                    name: 'Foodddddddddddddddddd',
+                    description: 'Beschreibung',
+                })
+                initGantt(props, xPosition)
 
-				},
-				view_mode: 'Day',
-				language: 'en',
-				start_date: "2020-12-01",
-				end_date: "2021-03-31",
-				show_label: false,
-				bar_corner_radius: 0,
-				column_width: 10,
-				init_scroll_position: init_scroll_position
-			});
-		}
+            },
+            view_mode: 'Day',
+            language: 'en',
+            start_date: "2020-12-01",
+            end_date: "2021-03-31",
+            show_label: false,
+            bar_corner_radius: 0,
+            column_width: 10,
+            init_scroll_position: init_scroll_position,
+            custom_click_on_bar: function (task) {
+                console.log('custom_click_on_bar', task)
+            }
+        });
+    }
 
-		var properties = [
-			{
-				'name': 'Group 1',
-				'background_color': 'red',
-				'bookings': [
-					{
-						id: '1',
-						start: '2020-12-01',
-						end: '2020-12-01',
-						name: 'Foodddddddddddddddddd',
-						description: 'Beschreibung',
-					},
-					{
-						id: '2',
-						start: '2020-12-02',
-						end: '2020-12-02',
-						name: 'Bar',
-						description: 'Beschreibung',
-					},
-				]
-			},
-			{
-				'name': 'Group 2',
-				'bookings': [
-					{
-						id: '3',
-						start: '2020-12-01',
-						end: '2020-12-15',
-						name: 'Foo',
-						description: 'Beschreibung',
-					},
-					{
-						id: '4',
-						start: '2020-12-18',
-						end: '2020-12-20',
-						name: 'Bar',
-						description: 'Beschreibung',
-					},
-				]
-			},
-			{
-				'name': 'Group 3',
-				'bookings': [
-					{
-						id: '5',
-						start: '2020-12-01',
-						end: '2020-12-15',
-						name: 'Foo',
-						description: 'Beschreibung',
-					},
-					{
-						id: '6',
-						start: '2020-12-18',
-						end: '2020-12-20',
-						name: 'Bar',
-						description: 'Beschreibung',
-					},
-				]
-			}
-		];
+    var properties = [
+        {
+            'name': 'Group 1',
+            'background_color': 'red',
+            'bookings': [
+                {
+                    id: '1',
+                    start: '2020-12-01',
+                    end: '2020-12-01',
+                    name: 'Foodddddddddddddddddd',
+                    description: 'Beschreibung',
+                },
+                {
+                    id: '2',
+                    start: '2020-12-02',
+                    end: '2020-12-02',
+                    name: 'Bar',
+                    description: 'Beschreibung',
+                },
+            ]
+        },
+        {
+            'name': 'Group 2',
+            'bookings': [
+                {
+                    id: '3',
+                    start: '2020-12-01',
+                    end: '2020-12-15',
+                    name: 'Foo',
+                    description: 'Beschreibung',
+                },
+                {
+                    id: '4',
+                    start: '2020-12-18',
+                    end: '2020-12-20',
+                    name: 'Bar',
+                    description: 'Beschreibung',
+                },
+            ]
+        },
+        {
+            'name': 'Group 3',
+            'bookings': [
+                {
+                    id: '5',
+                    start: '2020-12-01',
+                    end: '2020-12-15',
+                    name: 'Foo',
+                    description: 'Beschreibung',
+                },
+                {
+                    id: '6',
+                    start: '2020-12-18',
+                    end: '2020-12-20',
+                    name: 'Bar',
+                    description: 'Beschreibung',
+                },
+            ]
+        }
+    ];
 
-		initGantt(properties);
+    initGantt(properties);
 
-	</script>
+</script>
 </body>
 </html>
