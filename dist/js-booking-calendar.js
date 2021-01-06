@@ -928,9 +928,10 @@ var Gantt = (function () {
     }
 
     class Popup {
-        constructor(parent, custom_html) {
+        constructor(parent, custom_html, offset_x = 0) {
             this.parent = parent;
             this.custom_html = custom_html;
+            this.offset_x = offset_x;
             this.make();
         }
 
@@ -956,6 +957,7 @@ var Gantt = (function () {
                 options.position = 'left';
             }
             const target_element = options.target_element;
+            console.log('target_element', target_element);
 
             if (this.custom_html) {
                 let html = this.custom_html(options.task);
@@ -977,9 +979,12 @@ var Gantt = (function () {
                 position_meta = options.target_element.getBBox();
             }
 
+            console.log('position_meta', position_meta);
+
             if (options.position === 'left') {
+                console.log(this.offset_x);
                 this.parent.style.left =
-                    position_meta.x + (position_meta.width + 10) + 'px';
+                    position_meta.x + (position_meta.width + 10) + this.offset_x + 'px';
                 this.parent.style.top = position_meta.y + 'px';
 
                 this.pointer.style.transform = 'rotateZ(90deg)';
@@ -1075,7 +1080,7 @@ var Gantt = (function () {
                 padding: 18,
                 view_mode: 'Day',
                 date_format: 'YYYY-MM-DD',
-                popup_trigger: 'click',
+                popup_trigger: 'mouseover',
                 custom_popup_html: null,
                 language: 'en',
                 start_date: null,
@@ -1967,7 +1972,8 @@ var Gantt = (function () {
             if (!this.popup) {
                 this.popup = new Popup(
                     this.popup_wrapper,
-                    this.options.custom_popup_html
+                    this.options.custom_popup_html,
+                    this.options.actions_width
                 );
             }
             this.popup.show(options);

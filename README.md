@@ -86,7 +86,8 @@ const options = {
     start_date: "2020-12-01",
     end_date: "2021-03-31",
     show_label: true,
-    animations_active: false
+    animations_active: false,
+    init_scroll_position: 0 
 };
 
 new Gantt("#gantt", properties, options); 
