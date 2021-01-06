@@ -28,7 +28,6 @@ export default class Popup {
             options.position = 'left';
         }
         const target_element = options.target_element;
-        console.log('target_element', target_element);
 
         if (this.custom_html) {
             let html = this.custom_html(options.task);
@@ -50,10 +49,8 @@ export default class Popup {
             position_meta = options.target_element.getBBox();
         }
 
-        console.log('position_meta', position_meta);
 
         if (options.position === 'left') {
-            console.log(this.offset_x);
             this.parent.style.left =
                 position_meta.x + (position_meta.width + 10) + this.offset_x + 'px';
             this.parent.style.top = position_meta.y + 'px';
